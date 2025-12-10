@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カスタムサウンド 配布所</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* カスタムフォントと基本スタイルの設定 */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+        }
+        .command-input {
+            opacity: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+        /* コピーボタンのアイコンとテキストの調整 */
+        .icon-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 0.75rem; /* パディングを調整 */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <!-- メインコンテナ: 浮き出しや影をなくす -->
+    <div class="max-w-6xl mx-auto bg-white"> 
+        
+        <!-- ヘッダーエリア (タイトルの背景をグレーにするツートン部分) -->
+        <!-- flex-startで上端揃え、space-x-4でアイコンとテキストの間にスペースを設定 -->
+        <div class="bg-gray-800 p-4 sm:p-8 border-b border-gray-200 flex items-start space-x-4">
+            
+            <!-- アイコンコンテナ -->
+            <!-- JavaScriptでこの要素のwidthとheightを設定します -->
+            <div id="header-icon-container" class="flex-shrink-0 flex items-center justify-center bg-indigo-600 text-white rounded-lg">
+                <!-- 画像URLをそのまま使用 -->
+                <img src="https://avatars.githubusercontent.com/u/68602518?s=280&v=4" alt="Icon" class="w-full h-full object-cover rounded-lg">
+            </div>
+
+            <!-- テキストコンテナ -->
+            <div id="header-text-container">
+                <h1 class="text-3xl font-bold text-gray-100 mb-2">カスタムサウンド 配布所</h1>
+                <p class="text-gray-100 text-sm">コピーしてゲットできる音ブロックをディスペンサーで発射すると音が再生されます<br>サーバーリソースパックが入っていないと、音は鳴りません。</p>
+            </div>
+        </div>
+        
+        <!-- コンテンツエリア -->
+        <div class="p-4 sm:p-8 pt-4">
+            <!-- メッセージ表示エリア -->
+            <div id="message-area" class="h-6 mb-4 text-center"></div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-white">
+                        <tr>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5 sm:w-1/4">
+                                音声ID
+                            </th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell w-1/5 sm:w-1/4">
+                                カテゴリ
+                            </th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3 sm:w-1/4">
+                                内容
+                            </th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4 sm:w-1/4">
+                                操作
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="voice-list" class="bg-white divide-y divide-gray-200">
+                        <!-- データはJavaScriptで挿入されます -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- コピー用の一時的なテキストエリア -->
+    <textarea id="temp-command-input" class="command-input"></textarea>
+
+    <script>
+        // 音声データの定義。audioUrlを追加し、ファイルパスを想定（例: custom.pat007.ogg）
+        const voiceData = [
+            { id: 'custom.pat007', category: '汎用メロディ', content: 'モーツァルト40番', audioUrl: 'audio/pat007.ogg' },
+            { id: 'custom.pat008', category: '汎用アラーム', content: 'ピンポーン', audioUrl: 'audio/pat008.ogg' },
+            { id: 'custom.pat009', category: '汎用アラーム', content: 'ピピピピ', audioUrl: 'audio/pat009.ogg' },
+            { id: 'custom.pat010', category: '汎用メロディ', content: 'アマリリス', audioUrl: 'audio/pat010.ogg' },
+            { id: 'custom.pat011', category: '汎用メロディ', content: '黄色いリボン', audioUrl: 'audio/pat011.ogg' },
+            { id: 'custom.pat012', category: '汎用メロディ', content: '線路は続くよどこまでも', audioUrl: 'audio/pat012.ogg' },
+            { id: 'custom.pat013', category: '汎用メロディ', content: '聖者が街にやってくる', audioUrl: 'audio/pat013.ogg' },
+            { id: 'custom.pat014', category: '汎用メロディ', content: 'ハイ・ホー', audioUrl: 'audio/pat014.ogg' },
+            { id: 'custom.pat015', category: '汎用メロディ', content: 'Runner', audioUrl: 'audio/pat015.ogg' },
+            { id: 'custom.pat016', category: '汎用メロディ', content: '雪山賛歌', audioUrl: 'audio/pat016.ogg' },
+            { id: 'custom.pat017', category: '汎用メロディ', content: '守ってあげたい', audioUrl: 'audio/pat017.ogg' },
+            { id: 'custom.pat018', category: '汎用メロディ', content: '秋の気配', audioUrl: 'audio/pat018.ogg' },
+            { id: 'custom.pat019', category: '汎用アラーム', content: 'プルルル', audioUrl: 'audio/pat019.ogg' },
+            { id: 'custom.pat020', category: '汎用メロディ', content: 'アルプス一万尺', audioUrl: 'audio/pat020.ogg' },
+            { id: 'custom.pat021', category: '汎用アラーム', content: 'ピポパポピポパポ', audioUrl: 'audio/pat021.ogg' },
+            { id: 'custom.pat022', category: '汎用アラーム', content: 'ピンポーン', audioUrl: 'audio/pat022.ogg' },
+            { id: 'custom.pat023', category: '汎用メロディ', content: 'テキサスの黄色いバラ', audioUrl: 'audio/pat023.ogg' },
+            { id: 'custom.pat024', category: '汎用アラーム', content: 'パララパララ', audioUrl: 'audio/pat024.ogg' },
+            { id: 'custom.pat025', category: '汎用アラーム', content: 'ピピピピ', audioUrl: 'audio/pat025.ogg' },
+            { id: 'custom.pat026', category: '汎用アラーム', content: 'パパパーン', audioUrl: 'audio/pat026.ogg' },
+            { id: 'custom.pat027', category: '汎用メロディ', content: 'シューベルトの子守唄', audioUrl: 'audio/pat027.ogg' },
+            { id: 'custom.pat028', category: '汎用アラーム', content: 'ピロロロロン', audioUrl: 'audio/pat028.ogg' },
+            { id: 'custom.pat029', category: '汎用アラーム', content: 'カン', audioUrl: 'audio/pat029.ogg' },
+            { id: 'custom.pat030', category: '汎用アラーム', content: 'ピンポーン', audioUrl: 'audio/pat030.ogg' },
+            { id: 'custom.pat031', category: '汎用アラーム', content: 'ピピピピ', audioUrl: 'audio/pat031.ogg' },
+            { id: 'custom.pat032', category: '汎用メロディ', content: '静かな湖畔', audioUrl: 'audio/pat032.ogg' },
+            { id: 'custom.pat033', category: '汎用メロディ', content: 'カチューシャ', audioUrl: 'audio/pat033.ogg' },
+            { id: 'custom.pat034', category: '汎用メロディ', content: 'メリーさんの羊', audioUrl: 'audio/pat034.ogg' },
+            { id: 'custom.pat035', category: '汎用メロディ', content: '森のくまさん', audioUrl: 'audio/pat035.ogg' },
+            { id: 'custom.pat036', category: '汎用メロディ', content: 'Top of The World', audioUrl: 'audio/pat036.ogg' },
+            { id: 'custom.pat038', category: '汎用メロディ', content: 'おしえて', audioUrl: 'audio/pat038.ogg' },
+            { id: 'custom.pat039', category: '汎用メロディ', content: '静かな湖畔', audioUrl: 'audio/pat039.ogg' },
+            { id: 'custom.seh000', category: '汎用メロディ', content: 'カチューシャ', audioUrl: 'audio/seh000.ogg' },
+            { id: 'custom.seh002', category: '汎用メロディ', content: '草競馬', audioUrl: 'audio/seh002.ogg' },
+            { id: 'custom.seh003', category: '汎用メロディ', content: 'メリーさんの羊', audioUrl: 'audio/seh003.ogg' },
+            { id: 'custom.seh004', category: '汎用アラーム', content: 'ピンポン', audioUrl: 'audio/seh004.ogg' },
+            { id: 'custom.seh005', category: '汎用アラーム', content: 'パララパララパララ', audioUrl: 'audio/seh005.ogg' },
+            { id: 'custom.seh006', category: '汎用アラーム', content: 'カン', audioUrl: 'audio/seh006.ogg' },
+            { id: 'custom.seh007', category: '汎用アラーム', content: 'ピンポーン', audioUrl: 'audio/seh007.ogg' },
+            { id: 'custom.seh008', category: '汎用アラーム', content: 'ピピピピ', audioUrl: 'audio/seh008.ogg' },
+            { id: 'custom.seh009', category: '汎用アラーム', content: 'ピーポ', audioUrl: 'audio/seh009.ogg' },
+            { id: 'custom.seh010', category: '汎用アラーム', content: 'カン', audioUrl: 'audio/seh010.ogg' },
+            { id: 'custom.seh011', category: '汎用アラーム', content: 'プルルル', audioUrl: 'audio/seh011.ogg' },
+            { id: 'custom.seh012', category: '汎用アラーム', content: 'ピーンポーン', audioUrl: 'audio/seh012.ogg' },
+            { id: 'custom.seh013', category: '汎用アラーム', content: 'プルルル', audioUrl: 'audio/seh013.ogg' },
+            { id: 'custom.seh014', category: '汎用アラーム', content: 'プルルン', audioUrl: 'audio/seh014.ogg' },
+            { id: 'custom.seh015', category: '汎用アラーム', content: 'ピンポンパンポーン', audioUrl: 'audio/seh015.ogg' },
+            { id: 'custom.seh016', category: '汎用アラーム', content: 'ピンポンパンポパーン', audioUrl: 'audio/seh016.ogg' },
+            { id: 'custom.seh017', category: '汎用アラーム', content: 'カン', audioUrl: 'audio/seh017.ogg' },
+            { id: 'custom.kaisatsu', category: '交通', content: '改札機の音', audioUrl: 'audio/kaisatsu.ogg' },
+            { id: 'custom.toilet', category: '施設', content: 'トイレの音', audioUrl: 'audio/toilet.ogg' },
+            { id: 'custom.chime01', category: '施設', content: '学校の鐘', audioUrl: 'audio/chime.ogg' },
+            { id: 'custom.temple_bell', category: '施設', content: 'お寺の鐘', audioUrl: 'audio/temple_bell.ogg' },
+            { id: 'custom.e_button', category: '交通', content: '駅の非常ボタン', audioUrl: 'audio/button.ogg' },
+            { id: 'custom.fumikiri01', category: '交通', content: '踏切の音(通常)', audioUrl: 'audio/fumikiri1.ogg' },
+            { id: 'custom.fumikiri02', category: '交通', content: '踏切の音(電鈴)', audioUrl: 'audio/fumikiri2.ogg' },
+            { id: 'custom.joint1', category: '交通', content: 'ジョイント音(通常)', audioUrl: 'audio/joint1.ogg' },
+            { id: 'custom.joint2', category: '交通', content: 'ジョイント音(橋梁)', audioUrl: 'audio/joint2.ogg' },
+            { id: 'custom.mel000', category: '交通', content: '発車メロディ(砂利のテーマ)', audioUrl: 'audio/mel_jari.ogg' },
+            { id: 'custom.mel001', category: '交通', content: '発車メロディ(かめのテーマ)', audioUrl: 'audio/mel_kame.ogg' },
+            { id: 'custom.mel002', category: '交通', content: '発車メロディ(GBANソング)', audioUrl: 'audio/mel_gban.ogg' },
+            { id: 'custom.mel003', category: '交通', content: '発車メロディ(腐肉曲)', audioUrl: 'audio/mel_spoi.ogg' },
+            { id: 'custom.mel004', category: '交通', content: '発車メロディ(オリジナル1)', audioUrl: 'audio/mel_ori1.ogg' },
+            { id: 'custom.moudourin01', category: '交通', content: '盲導鈴(鳥声なし)', audioUrl: 'audio/moudourin1.ogg' },
+            { id: 'custom.moudourin02', category: '交通', content: '盲導鈴(鳥声あり)', audioUrl: 'audio/moudourin2.ogg' },
+            { id: 'custom.minuma01', category: 'その他', content: '見沼の声', audioUrl: 'audio/iku001.ogg' },
+        ];
+
+
+        const voiceListEl = document.getElementById('voice-list');
+        const tempInput = document.getElementById('temp-command-input');
+        const messageArea = document.getElementById('message-area');
+        
+        // 再生中のAudioオブジェクトを保持するグローバル変数
+        let currentAudio = null;
+        // 再生中のボタン要素を保持するグローバル変数
+        let currentPlayingButton = null;
+
+        /**
+         * ヘッダーアイコンのサイズをテキストブロックに合わせて調整します。
+         */
+        function setHeaderIconSize() {
+            const textContainer = document.getElementById('header-text-container');
+            const iconContainer = document.getElementById('header-icon-container');
+
+            if (textContainer && iconContainer) {
+                const totalHeight = textContainer.offsetHeight;
+
+                iconContainer.style.width = `${totalHeight}px`;
+                iconContainer.style.height = `${totalHeight}px`;
+
+                // imgタグを使用しているため、サイズ調整はコンテナのW/HのみでOK
+            }
+        }
+
+        /**
+         * すべての再生アイコンをデフォルトの状態（fa-play）に戻す
+         */
+        function resetAllPlayIcons() {
+            document.querySelectorAll('.play-button-icon').forEach(icon => {
+                icon.classList.remove('fa-pause');
+                icon.classList.add('fa-play');
+                icon.closest('button').classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                icon.closest('button').classList.add('bg-gray-500', 'hover:bg-gray-600');
+            });
+        }
+        
+        /**
+         * コマンド文字列を生成する (NBTタグの形式をコロンなしに変更)
+         * @param {string} voiceId - 音声ID (例: custom.pat015)
+         * @param {string} category - カテゴリ名 (例: 汎用メロディ)
+         * @param {string} content - 内容 (音ブロックの名前として使用)
+         */
+        function generateCommand(voiceId, category, content) {
+            
+            // NBT Loreタグ (コロンなし)
+            const soundText = `'{"text":"サウンド ${voiceId}","italic":false,"color":"gold"}'`;
+            const volumeText = `'{"text":"音量 2","italic":false,"color":"gold"}'`;
+            const pitchText = `'{"text":"ピッチ 1","italic":false,"color":"gold"}'`;
+            const categoryText = `'{"text":"カテゴリ ${category}","italic":false,"color":"gold"}'`;
+            
+            // Lore配列の作成
+            const loreArray = [soundText, volumeText, pitchText, categoryText].join(',');
+            
+            return `/give @p note_block{display:{Lore:[${loreArray}]}} 1`;
+        }
+
+        /**
+         * 音声を再生/一時停止する
+         * @param {string} audioUrl - 再生するOGGファイルのURL
+         * @param {string} voiceId - 音声ID
+         * @param {HTMLElement} buttonEl - クリックされたボタン要素
+         */
+        function togglePlayback(audioUrl, voiceId, buttonEl) {
+            const iconEl = buttonEl.querySelector('.play-button-icon');
+
+            if (currentAudio && currentAudio.src.includes(audioUrl) && !currentAudio.paused) {
+                // 1. 同じ曲が再生中の場合 -> 一時停止
+                currentAudio.pause();
+                currentAudio = null;
+                currentPlayingButton = null;
+                iconEl.classList.remove('fa-pause');
+                iconEl.classList.add('fa-play');
+                buttonEl.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                buttonEl.classList.add('bg-gray-500', 'hover:bg-gray-600');
+                showMessage(`'${voiceId}' の再生を停止しました。`, 'text-red-500');
+                return;
+            }
+
+            // 2. 別の曲が再生中の場合、または同じ曲が停止中の場合 -> 再生開始
+            if (currentAudio) {
+                currentAudio.pause();
+                // 別の曲のボタンをリセット
+                if (currentPlayingButton) {
+                    const prevIcon = currentPlayingButton.querySelector('.play-button-icon');
+                    prevIcon.classList.remove('fa-pause');
+                    prevIcon.classList.add('fa-play');
+                    currentPlayingButton.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                    currentPlayingButton.classList.add('bg-gray-500', 'hover:bg-gray-600');
+                }
+            }
+            
+            // 新しいAudioオブジェクトを作成して再生開始
+            currentAudio = new Audio(audioUrl);
+            currentPlayingButton = buttonEl;
+            
+            currentAudio.play().then(() => {
+                // 再生成功
+                iconEl.classList.remove('fa-play');
+                iconEl.classList.add('fa-pause');
+                buttonEl.classList.remove('bg-gray-500', 'hover:bg-gray-600');
+                buttonEl.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+                showMessage(`'${voiceId}' を再生中です...`, 'text-indigo-600');
+            }).catch(e => {
+                // 再生失敗（ファイルが見つからない、ユーザー操作がないなど）
+                currentAudio = null;
+                currentPlayingButton = null;
+                iconEl.classList.remove('fa-pause');
+                iconEl.classList.add('fa-play');
+                buttonEl.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                buttonEl.classList.add('bg-gray-500', 'hover:bg-gray-600');
+                showMessage(`'${voiceId}' の再生に失敗しました（音源確認）。`, 'text-red-600');
+                console.error("Audio playback failed:", e);
+            });
+
+            // 再生終了時の処理
+            currentAudio.onended = () => {
+                currentAudio = null;
+                currentPlayingButton = null;
+                iconEl.classList.remove('fa-pause');
+                iconEl.classList.add('fa-play');
+                buttonEl.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                buttonEl.classList.add('bg-gray-500', 'hover:bg-gray-600');
+                showMessage(`'${voiceId}' の再生が完了しました。`, 'text-gray-500');
+            };
+        }
+
+        /**
+         * コマンドをクリップボードにコピーし、結果をユーザーに通知する
+         */
+        function copyCommand(voiceId, category, content, buttonEl) {
+            const command = generateCommand(voiceId, category, content); // contentを渡すように変更
+            
+            // 再生中の場合は停止
+            if (currentAudio) {
+                currentAudio.pause();
+                resetAllPlayIcons();
+                currentAudio = null;
+                currentPlayingButton = null;
+            }
+
+            // クリップボードAPIを使用
+            navigator.clipboard.writeText(command).then(() => {
+                showMessage(`'${content}' のコマンドをクリップボードにコピーしました！`, 'text-green-600');
+                
+                // ボタンのアニメーション
+                const icon = buttonEl.querySelector('i');
+                const originalIconClass = icon.className;
+                
+                icon.className = 'fas fa-check'; // チェックマークアイコンに変更
+                buttonEl.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                buttonEl.classList.add('bg-green-500');
+
+                setTimeout(() => {
+                    icon.className = originalIconClass; // 元のアイコンに戻す
+                    buttonEl.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+                    buttonEl.classList.remove('bg-green-500');
+                }, 1500);
+
+            }).catch(err => {
+                showMessage('コピーに失敗しました。セキュリティ制約の可能性があります。', 'text-red-600');
+                console.error('クリップボードコピーエラー:', err);
+            });
+        }
+
+        /**
+         * メッセージエリアに一時的にメッセージを表示する
+         */
+        function showMessage(message, colorClass) {
+            messageArea.innerHTML = `<span class="${colorClass} font-medium">${message}</span>`;
+            setTimeout(() => {
+                messageArea.innerHTML = '';
+            }, 3000);
+        }
+
+        // データを元にHTMLテーブルを生成
+        voiceData.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-100 transition duration-150';
+            row.innerHTML = `
+                <td class="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                    ${item.id}
+                </td>
+                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                        ${item.category}
+                    </span>
+                </td>
+                <td class="px-3 py-3 text-sm text-gray-500">
+                    ${item.content}
+                </td>
+                <td class="px-3 py-3 whitespace-nowrap text-sm font-medium space-x-2">
+                    <button 
+                        onclick="togglePlayback('${item.audioUrl}', '${item.id}', this)"
+                        class="icon-button px-3 py-1 text-sm font-semibold rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition duration-150 shadow-md"
+                        title="試聴">
+                        <i class="fas fa-play play-button-icon"></i>
+                    </button>
+                    <button
+                        onclick="copyCommand('${item.id}', '${item.category}', '${item.content}', this)"
+                        class="icon-button px-3 py-1 text-sm font-semibold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition duration-150 shadow-md"
+                        title="コマンドコピー">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </td>
+            `;
+            voiceListEl.appendChild(row);
+        });
+
+        // ページロード時とリサイズ時にアイコンサイズを調整
+        window.onload = function() {
+            setHeaderIconSize();
+        };
+
+        window.onresize = function() {
+            setHeaderIconSize();
+        };
+
+    </script>
+</body>
+</html>
