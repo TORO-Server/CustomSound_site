@@ -1,0 +1,156 @@
+/* Tailwind (以前は cdn.tailwindcss.com 3.4.17 を実行時に読み込んでいたもの) を事前ビルドする。
+   `npm run build` で assets/styles.css に出力される。オフラインでも見た目が崩れないようにするため。 */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== ここからスマホ・タッチ向けの追加分 (PC の見た目は変えない) ===== */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* ボタンのダブルタップ拡大を止める (ピンチズームはそのまま使える) */
+#voice-list button {
+  touch-action: manipulation;
+}
+
+/* ノッチ・ホームバー付き端末の左右・下の余白 */
+@supports (padding: max(0px)) {
+  @media (min-width: 640px) {
+    body[class] {
+      padding-top: max(2rem, env(safe-area-inset-top));
+      padding-right: max(2rem, env(safe-area-inset-right));
+      padding-bottom: max(2rem, env(safe-area-inset-bottom));
+      padding-left: max(2rem, env(safe-area-inset-left));
+    }
+  }
+}
+
+/* タブレットなどタッチ操作の端末では、PC 幅でもボタンを押しやすい大きさにする */
+@media (pointer: coarse) {
+  #voice-list .icon-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* ===== Tailwind の sm (640px) 未満 = スマホ ===== */
+@media (max-width: 639.98px) {
+  body[class] {
+    padding: 0 0 env(safe-area-inset-bottom);
+  }
+
+  /* ヘッダー: アイコンを固定サイズにする。
+     (JS が文字の高さに合わせて大きさを決めるため、幅が狭いと巨大化してページ全体が横に広がっていた) */
+  #app-header {
+    padding: calc(14px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 16px
+      calc(16px + env(safe-area-inset-left));
+  }
+  #header-icon-container {
+    width: 56px !important;
+    height: 56px !important;
+  }
+  #header-text-container {
+    min-width: 0;
+  }
+  #header-text-container h1 {
+    font-size: 1.375rem;
+    line-height: 1.35;
+    margin-bottom: 0.25rem;
+    /* 「カスタムサウンド」「配布所」の途中で折り返さない */
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  #header-text-container p {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  #app-content {
+    padding: 4px calc(12px + env(safe-area-inset-right)) 24px calc(12px + env(safe-area-inset-left));
+  }
+
+  /* 通知は画面下に浮かべる (スクロールしていても見えるように) */
+  #message-area {
+    position: fixed;
+    z-index: 50;
+    left: calc(12px + env(safe-area-inset-left));
+    right: calc(12px + env(safe-area-inset-right));
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    height: auto;
+    margin: 0;
+    pointer-events: none;
+  }
+  #message-area:empty {
+    display: none;
+  }
+  #message-area > span {
+    display: inline-block;
+    max-width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(17, 24, 39, 0.18);
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  /* 表をカード状の行に組み替える: 左に ID と内容、右に 試聴・コピー ボタン */
+  #voice-table-wrap {
+    overflow: visible;
+  }
+  #voice-table,
+  #voice-table tbody {
+    display: block;
+    width: 100%;
+  }
+  #voice-table thead {
+    display: none;
+  }
+  #voice-list > tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'id ops'
+      'content ops';
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 2px;
+    padding: 12px 4px;
+  }
+  #voice-list > tr > td {
+    display: block;
+    padding: 0;
+  }
+  #voice-list > tr > td:nth-child(1) {
+    grid-area: id;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  #voice-list > tr > td:nth-child(2) {
+    display: none;
+  }
+  #voice-list > tr > td:nth-child(3) {
+    grid-area: content;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+  #voice-list > tr > td:nth-child(4) {
+    grid-area: ops;
+    display: flex;
+    gap: 8px;
+  }
+  #voice-list > tr > td:nth-child(4) > button {
+    margin: 0;
+  }
+  #voice-list .icon-button {
+    min-width: 46px;
+    min-height: 44px;
+    padding: 0 12px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+}

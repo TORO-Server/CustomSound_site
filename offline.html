@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1f2937">
+    <title>オフライン - カスタムサウンド 配布所</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px max(16px, env(safe-area-inset-right)) 24px max(16px, env(safe-area-inset-left));
+            box-sizing: border-box;
+            background: #f7f9fb;
+            color: #1f2937;
+            font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+        }
+        main {
+            max-width: 420px;
+            width: 100%;
+            background: #fff;
+            text-align: center;
+        }
+        header {
+            background: #1f2937;
+            padding: 20px 16px;
+        }
+        header img {
+            width: 64px;
+            height: 64px;
+            border-radius: 8px;
+        }
+        h1 {
+            margin: 12px 0 0;
+            font-size: 20px;
+            color: #f3f4f6;
+        }
+        section {
+            padding: 20px 16px 24px;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+        a {
+            display: inline-block;
+            margin-top: 12px;
+            min-height: 44px;
+            line-height: 44px;
+            padding: 0 20px;
+            border-radius: 10px;
+            background: #4f46e5;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <img src="icons/toro-avatar.png" alt="">
+            <h1>オフラインです</h1>
+        </header>
+        <section>
+            <p>インターネットに接続されていないため、ページを読み込めませんでした。<br>
+            一度再生したサウンドは、オフラインでも試聴できる場合があります。</p>
+            <a href="./">もう一度読み込む</a>
+        </section>
+    </main>
+</body>
+</html>
