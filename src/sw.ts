@@ -10,7 +10,7 @@
 declare const self: ServiceWorkerGlobalScope
 
 // シェルの中身を変えたら上げる (古いキャッシュは activate で消える)
-const VERSION = 'v1'
+const VERSION = 'v2'
 const SHELL_CACHE = `customsound-shell-${VERSION}`
 // 音声は内容が変わらないので、シェルとは別に世代管理する
 const AUDIO_CACHE = 'customsound-audio-v1'

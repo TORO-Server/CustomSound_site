@@ -2,7 +2,7 @@
 "use strict";
 (() => {
   // src/sw.ts
-  var VERSION = "v1";
+  var VERSION = "v2";
   var SHELL_CACHE = `customsound-shell-${VERSION}`;
   var AUDIO_CACHE = "customsound-audio-v1";
   var AUDIO_MAX_ENTRIES = 60;
