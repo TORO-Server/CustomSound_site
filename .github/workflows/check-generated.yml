@@ -1,0 +1,39 @@
+name: check-generated
+
+# sw.js と assets/styles.css は生成物 (正本は src/sw.ts と src/styles.css)。
+# 作り直して差が出たら、生成し忘れなので失敗にする (手で sw.js を直した場合も同じ)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'sw.js'
+      - 'assets/styles.css'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/check-generated.yml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'sw.js'
+      - 'assets/styles.css'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/check-generated.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+      - name: 生成物が正本から作り直したものと同じか
+        run: git diff --exit-code -- sw.js assets/styles.css
