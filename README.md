@@ -1,6 +1,6 @@
 # カスタムサウンド 配布所
 
-TORO Server のカスタムサウンド一覧ページ (https://sound.torosaba.net/)。
+TORO Server のカスタムサウンドの一覧ページです。
 GitHub Pages が `main` ブランチをそのまま配信している (ビルドはしない)。
 
 ## ファイル
