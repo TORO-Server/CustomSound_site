@@ -1,6 +1,6 @@
 # カスタムサウンド 配布所
 
-TORO Server のカスタムサウンド一覧ページ (https://sound.torosaba.net/)。
+TORO Server のカスタムサウンドの一覧ページです。
 GitHub Pages が `main` ブランチをそのまま配信している (ビルドはしない)。
 
 ## ファイル
@@ -44,3 +44,7 @@ npm run typecheck   # src/sw.ts の型チェック
   ただし既存の .ogg を同じ名前で差し替えたときは、`src/sw.ts` の `AUDIO_CACHE` の番号を上げてビルドする。
 
 ローカル確認: `npx http-server -p 8094 -c-1` → http://localhost:8094/
+
+## 関連文書
+
+文章の書き方: [WRITING-STYLE.md](https://github.com/TORO-Server/TORO-Website/blob/main/docs/WRITING-STYLE.md)
