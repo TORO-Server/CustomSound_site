@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://sound.torosaba.net/sitemap.xml
